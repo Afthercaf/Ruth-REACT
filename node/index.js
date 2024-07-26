@@ -4,3 +4,4 @@ import { PORT } from './Database/config.js';
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
