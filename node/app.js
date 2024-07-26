@@ -15,9 +15,9 @@ import cors from 'cors';
 
 const app = express();
 
-// Agrega esta línea antes de las rutas
+// CORS Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Ajusta esto según la URL de tu frontend
+  origin: 'https://ruth-react.vercel.app/', // Cambia esto a la URL de tu frontend en Vercel
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -29,7 +29,6 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser("faztmysqlnodemysql"));
-console.log(database);
 
 app.use(session({
   secret: TOKEN_SECRET,
@@ -50,20 +49,25 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Rutas
 app.use(routes);
 
+// Ruta de prueba
+app.get("/", (req, res) => {
+  const htmlResponse = `
+    <html>
+      <head>
+        <title>NodeJs y Express en Vercel</title>
+      </head>
+      <body>
+        <h1>Soy un proyecto Back end en vercel</h1>
+      </body>
+    </html>
+  `;
+  res.send(htmlResponse);
+});
 
-// Serve static files from the "public" directory
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, 'public')));
-
-  // Handle all routes by serving the index.html file
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-  });
-}
-
+// Manejo de errores
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
@@ -74,4 +78,5 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({ message: err.message, status: err.status });
 });
+
 export default app;
