@@ -8,7 +8,9 @@
     {
       "src": "react-front/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "react-front/build" }
+      "config": {
+        "distDir": "react-front/build"
+      }
     }
   ],
   "routes": [
