@@ -97,7 +97,7 @@ const LoginPage = () => {
 
           <p className="fs-5 text-center text-white mt-3">
             ¿No tienes una cuenta?{" "}
-            <a href="/signup" className="text-info">Regístrate</a>
+            <a href="/register" className="text-info">Regístrate</a>
           </p>
         </div>
       </div>
