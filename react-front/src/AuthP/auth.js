@@ -34,12 +34,3 @@ export const verifyTokenRequest = async (token) => {
   }
 };
 
-export const logoutRequest = async () => {
-  try {
-    const response = await API_URL.post('/logout');
-    return response;
-  } catch (error) {
-    console.error('Error during logout request:', error.response ? error.response.data : error.message);
-    throw error;
-  }
-};

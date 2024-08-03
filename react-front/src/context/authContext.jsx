@@ -1,3 +1,4 @@
+// authContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import { loginRequest, registerRequest, verifyTokenRequest } from "../AuthP/auth";
 
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(''); // Agrega estado para el rol del usuario
 
   useEffect(() => {
     let timer;
@@ -30,30 +32,34 @@ export const AuthProvider = ({ children }) => {
   const signup = async (user) => {
     try {
       const res = await registerRequest(user);
-      const { user: userData, token } = res.data;
+      const { userData, token } = res.data;
+      // Se asume que userData.id es generado automáticamente y no es necesario pasarlo en la solicitud
       setUser({ id: userData.id, fullname: userData.fullname, username: userData.username });
       setIsAuthenticated(true);
       localStorage.setItem("token", token);
-      localStorage.setItem("userId", userData.id); // Store userId in localStorage
+      localStorage.setItem("userId", userData.id);
+      setRole(userData.role); // Establece el rol del usuario después de registrarse
     } catch (error) {
       console.error("Error during signup:", error.response?.data || error.message);
       setErrors([error.response?.data?.message || "Unknown error"]);
     }
   };
+  
 
   const signin = async (user) => {
     try {
       const res = await loginRequest(user);
-      const { id, fullname, username, token } = res.data;
+      const { id, fullname, username, token, role } = res.data; // Extrae el rol desde la respuesta
       setUser({ id, fullname, username });
       setIsAuthenticated(true);
       localStorage.setItem("token", token);
-      localStorage.setItem("userId", id); // Store userId in localStorage
-      return res; // Return the entire response
+      localStorage.setItem("userId", id);
+      setRole(role); // Establece el rol del usuario después de iniciar sesión
+      return res;
     } catch (error) {
       console.error("Error during signin:", error.response?.data || error.message);
       setErrors([error.response?.data?.message || "Unknown error"]);
-      throw error; // Re-throw the error to be caught in the component
+      throw error;
     }
   };
 
@@ -62,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userId");
     setUser(null);
     setIsAuthenticated(false);
+    setRole(''); // Limpia el rol al cerrar sesión
   };
 
   useEffect(() => {
@@ -79,6 +86,7 @@ export const AuthProvider = ({ children }) => {
         if (res.data) {
           setIsAuthenticated(true);
           setUser({ id: userId });
+          setRole(res.data.role); // Establece el rol del usuario después de verificar el token
         } else {
           setIsAuthenticated(false);
           setUser(null);
@@ -103,6 +111,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     errors,
     loading,
+    role, // Exponer el rol en el valor del contexto
   };
 
   return (

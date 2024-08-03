@@ -8,7 +8,6 @@ import UserPage from './pages/UserPage';
 import SignUpPage from './pages/SignUpPage';
 import { Navbar } from './components/Navbar';
 import { AuthProvider } from './context/authContext';
-import { AdminProvider } from './context/adminContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import CustomScrollbar from './components/CustomScrollbar'; // Asegúrate de crear este componente
 import './App.css';
@@ -16,7 +15,6 @@ import './App.css';
 function App() {
   return (
     <AuthProvider>
-      <AdminProvider>
         <BrowserRouter>
           <CustomScrollbar>
             <div className="app-container">
@@ -55,7 +53,6 @@ function App() {
             </div>
           </CustomScrollbar>
         </BrowserRouter>
-      </AdminProvider>
     </AuthProvider>
   );
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../context/adminContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   getAdminPanelRequest, 
@@ -9,30 +8,26 @@ import {
   deleteProductRequest, 
   deleteUserRequest 
 } from '../AuthP/admin.api';
-
+import { useAuth } from '../context/authContext';
 const PanelAdmin = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [registros, setRegistros] = useState([]);
   const [error, setError] = useState(null);
-  const { esAdmin, cargando } = useAdmin();
-  const navegar = useNavigate();
+  const { isAuthenticated, role } = useAuth()
+  const navigate = useNavigate();
 
   const [paginaUsuarios, setPaginaUsuarios] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
   const elementosPorPagina = 5;
 
   useEffect(() => {
-    if (!cargando) {
-      if (!esAdmin) {
-        console.log('Usuario no es admin, redirigiendo a /signin');
-        navegar('/signin');
-      } else {
-        console.log('Usuario es admin, cargando datos');
-        obtenerDatos();
-      }
+    if (!isAuthenticated || role !== 'admin') {
+      navigate('/signin'); // Redirige si el usuario no está autenticado o no es un administrador
+    } else {
+      obtenerDatos();
     }
-  }, [esAdmin, cargando, navegar]);
+  }, [isAuthenticated, role, navigate]);
 
   const obtenerDatos = async () => {
     try {
@@ -110,15 +105,6 @@ const PanelAdmin = () => {
 
   const usuariosPaginados = usuarios.slice((paginaUsuarios - 1) * elementosPorPagina, paginaUsuarios * elementosPorPagina);
   const productosPaginados = productos.slice((paginaProductos - 1) * elementosPorPagina, paginaProductos * elementosPorPagina);
-
-  if (cargando) {
-    return <div>Cargando...</div>;
-  }
-
-  if (!esAdmin) {
-    return null;
-  }
-
   return (
     <div className="container p-4">
       <h1>Panel de Administración</h1>
@@ -133,23 +119,23 @@ const PanelAdmin = () => {
         <div className="card-body">
           <h4 className="card-title mb-3">Agregar Nuevo Producto</h4>
           <form onSubmit={handleAgregarProducto}>
-  <div className="form-group mb-3">
-    <input type="text" name="name" className="form-control bg-dark text-light" placeholder="Nombre del producto" required />
-  </div>
-  <div className="form-group mb-3">
-    <textarea name="description" className="form-control bg-dark text-light" placeholder="Descripción" required></textarea>
-  </div>
-  <div className="form-group mb-3">
-    <input type="number" name="price" step="0.01" className="form-control bg-dark text-light" placeholder="Precio" required />
-  </div>
-  <div className="form-group mb-3">
-    <input type="number" name="quantity" className="form-control bg-dark text-light" placeholder="Cantidad" required />
-  </div>
-  <div className="form-group mb-3">
-    <input type="text" name="imageUrl" className="form-control bg-dark text-light" placeholder="URL de la imagen" required />
-  </div>
-  <button type="submit" className="btn btn-success">Guardar Producto</button>
-</form>
+            <div className="form-group mb-3">
+              <input type="text" name="name" className="form-control bg-dark text-light" placeholder="Nombre del producto" required />
+            </div>
+            <div className="form-group mb-3">
+              <textarea name="description" className="form-control bg-dark text-light" placeholder="Descripción" required></textarea>
+            </div>
+            <div className="form-group mb-3">
+              <input type="number" name="price" step="0.01" className="form-control bg-dark text-light" placeholder="Precio" required />
+            </div>
+            <div className="form-group mb-3">
+              <input type="number" name="quantity" className="form-control bg-dark text-light" placeholder="Cantidad" required />
+            </div>
+            <div className="form-group mb-3">
+              <input type="text" name="imageUrl" className="form-control bg-dark text-light" placeholder="URL de la imagen" required />
+            </div>
+            <button type="submit" className="btn btn-success">Guardar Producto</button>
+          </form>
         </div>
       </div>
 
@@ -177,13 +163,12 @@ const PanelAdmin = () => {
                   <td>{producto.price}</td>
                   <td>{producto.description}</td>
                   <td>
-                      {producto.image ? (
-                    <img src={producto.image} alt="Imagen del Producto" style={{ width: '100px', height: 'auto' }} />
-                       ) : (
+                    {producto.image ? (
+                      <img src={producto.image} alt="Imagen del Producto" style={{ width: '100px', height: 'auto' }} />
+                    ) : (
                       <p>No disponible</p>
-                      )}
-                    </td>
-
+                    )}
+                  </td>
                   <td>{producto.quantity}</td>
                   <td>
                     <button onClick={() => handleEliminarProducto(producto.id)} className="btn btn-danger btn-sm">Eliminar</button>

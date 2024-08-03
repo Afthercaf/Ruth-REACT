@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { signUp } from "../Servicios/AuthService";
+import { useAuth } from '../context/authContext'; // Importa el hook useAuth
 
 const SignUpPage = () => {
+  const { signup } = useAuth(); // Usa el hook useAuth para obtener la función signup
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
@@ -12,15 +13,16 @@ const SignUpPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (password1 !== password2) {
-      setError("Passwords do not match");
+      setError("Las contraseñas no coinciden");
       return;
     }
     try {
-      const response = await signUp(fullname, email, password1);
-      setSuccess(response.message);
+      // Llama a la función signup con los datos del formulario
+      await signup({ fullname, email, password: password1 });
+      setSuccess("¡Registro exitoso! Por favor, inicia sesión.");
       setError("");
     } catch (err) {
-      setError(err.response?.data?.message || "Error during sign up");
+      setError(err.response?.data?.message || "Error durante el registro");
       setSuccess("");
     }
   };
@@ -30,7 +32,7 @@ const SignUpPage = () => {
       <div className="row">
         <div className="col-md-6 mx-auto">
           <form onSubmit={handleSubmit} className="card card-body bg-dark text-white p-5">
-            <h3 className="text-center fw-bold mb-4">Sign Up</h3>
+            <h3 className="text-center fw-bold mb-4">Registro</h3>
 
             {error && (
               <div className="alert alert-danger" role="alert">
@@ -43,55 +45,55 @@ const SignUpPage = () => {
               </div>
             )}
 
-            <label htmlFor="fullname">Write your fullname:</label>
+            <label htmlFor="fullname">Escribe tu nombre completo:</label>
             <input
               type="text"
               name="fullname"
-              placeholder="Full Name"
+              placeholder="Nombre Completo"
               className="form-control mb-3"
               value={fullname}
               onChange={(e) => setFullname(e.target.value)}
               autoFocus
             />
 
-            <label htmlFor="email">Write your Email:</label>
+            <label htmlFor="email">Escribe tu correo electrónico:</label>
             <input
               type="email"
               name="email"
-              placeholder="youremail@mail.com"
+              placeholder="tucorreo@ejemplo.com"
               className="form-control mb-3"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label htmlFor="password1">Write your password:</label>
+            <label htmlFor="password1">Escribe tu contraseña:</label>
             <input
               type="password"
               name="password1"
-              placeholder="Password"
+              placeholder="Contraseña"
               className="form-control mb-3"
               value={password1}
               onChange={(e) => setPassword1(e.target.value)}
             />
 
-            <label htmlFor="password2">Confirm your password:</label>
+            <label htmlFor="password2">Confirma tu contraseña:</label>
             <input
               type="password"
               name="password2"
-              placeholder="Confirm Password"
+              placeholder="Confirmar Contraseña"
               className="form-control mb-3"
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
             />
 
             <button className="btn btn-success btn-block">
-              Register
+              Registrar
             </button>
           </form>
 
           <p className="fs-5 text-center text-white mt-3">
-            Do you already have an account?{" "}
-            <a href="/signin" className="text-info">Sign In</a>
+            ¿Ya tienes una cuenta?{" "}
+            <a href="/signin" className="text-info">Iniciar sesión</a>
           </p>
         </div>
       </div>

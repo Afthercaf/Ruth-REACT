@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { verifyTokenRequest } from '../AuthP/auth';
@@ -8,7 +8,32 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signin, setUser } = useAuth();
+  const { signin, setUser} = useAuth();
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const userResponse = await verifyTokenRequest(token);
+          if (userResponse.data) {
+            setUser(userResponse.data);
+            if (userResponse.data.role === 'admin') {
+              navigate('/admin/panel', { replace: true });
+            } else {
+              navigate('/user', { replace: true });
+            }
+          }
+        } catch (err) {
+          console.error('Error verifying token:', err);
+          localStorage.removeItem('token');
+          localStorage.removeItem('userData');
+        }
+      }
+    };
+
+    checkAuthStatus();
+  }, [navigate, setUser]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -21,7 +46,6 @@ const LoginPage = () => {
       console.log('Login response:', response);
 
       if (response && response.data && response.data.token) {
-        // Store token in localStorage
         localStorage.setItem('token', response.data.token);
 
         const userResponse = await verifyTokenRequest(response.data.token);
@@ -29,7 +53,6 @@ const LoginPage = () => {
 
         if (setUser) {
           setUser(userResponse.data);
-          // Store user data in localStorage
           localStorage.setItem('userData', JSON.stringify(userResponse.data));
         } else {
           console.warn('setUser is not available');
