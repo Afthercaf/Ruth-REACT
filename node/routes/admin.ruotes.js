@@ -25,7 +25,7 @@ const upload = multer({ storage: storage });
 router.get("/panel", renderAdminPanel);
 router.post("/add-product", upload.single('image'), addProduct);
 router.delete("/delete-product/:id", deleteProduct);
-router.post("/update-product/:id", upload.single('image'), updateProduct);
+router.post("/update-product/:id", updateProduct);
 router.delete("/delete-user/:id", deleteUser);
 router.get('/products', getProducts);
 router.get('/logs', getLogs);

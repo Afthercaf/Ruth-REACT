@@ -15,29 +15,79 @@ export const renderAdminPanel = async (req, res) => {
 
 export const addProduct = async (req, res) => {
     const { name, description, price, quantity, imageUrl } = req.body;
+    let connection;
   
     try {
-      await pool.query("INSERT INTO products SET ?", { name, description, price, quantity, image: imageUrl });
-      res.json({ message: "Producto agregado exitosamente" });
+        connection = await pool.getConnection(); // Obtén la conexión del pool
+        await connection.beginTransaction(); // Inicia la transacción
+
+        // Inserta el nuevo producto
+        await connection.query("INSERT INTO products SET ?", { name, description, price, quantity, image: imageUrl });
+        
+        // Registra la acción en la tabla de auditoría
+        const logEntry = {
+            user_id: 'admin',
+            action: 'Added a product',
+            timestamp: new Date(),
+            details: `Producto: ${name}, Descripción: ${description}, Precio: ${price}, Cantidad: ${quantity}, Imagen: ${imageUrl}`
+        };
+        await connection.query("INSERT INTO audit_logs SET ?", logEntry);
+
+        await connection.commit(); // Confirma la transacción
+        res.json({ message: "Producto agregado exitosamente" });
     } catch (error) {
-      console.error("Error al agregar producto:", error);
-      res.status(500).json({ error: "Error al agregar producto", message: error.message });
-    }
-  };
-  
-export const updateProduct = async (req, res) => {
-    try {
-        const { id, name, description, price } = req.body;
-        const image = req.file ? req.file.filename : req.body.current_image;
-        await pool.query("UPDATE products SET ? WHERE id = ?", [{ name, description, price, image }, id]);
-        await pool.query("INSERT INTO audit_logs SET ?", { user_id: req.user.id, action: 'Updated a product' });
-        res.json({ message: "Producto actualizado exitosamente" });
-    } catch (error) {
-        console.error("Error al actualizar producto:", error);
-        res.status(500).json({ error: "Error al actualizar producto", message: error.message });
+        if (connection) {
+            await connection.rollback(); // Revertir la transacción en caso de error
+        }
+        console.error("Error al agregar producto:", error);
+        res.status(500).json({ error: "Error al agregar producto", message: error.message });
+    } finally {
+        if (connection) {
+            connection.release(); // Libera la conexión
+        }
     }
 };
 
+
+  
+export const updateProduct = async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        const { name, description, price, quantity, image } = req.body;
+
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        // Actualiza el producto
+        await connection.query(
+            "UPDATE products SET name = ?, description = ?, price = ?, quantity = ?, image = ? WHERE id = ?",
+            [name, description, price, quantity, image, id]
+        );
+
+        // Registra la acción en la tabla de auditoría
+        const logEntry = {
+            user_id: 'admin',
+            action: 'Updated a product',
+            timestamp: new Date(),
+            details: `Producto ID: ${id}, Nombre: ${name}, Descripción: ${description}, Precio: ${price}, Cantidad: ${quantity}, Imagen: ${image}`
+        };
+        await connection.query("INSERT INTO audit_logs SET ?", logEntry);
+
+        await connection.commit();
+        res.json({ message: "Producto actualizado exitosamente" });
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error("Error al actualizar producto:", error);
+        res.status(500).json({ error: "Error al actualizar producto", message: error.message });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+};
 export const deleteProduct = async (req, res) => {
     const connection = await pool.getConnection();
     try {
