@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { pool } from "../Database/database.js";
+import { pool } from "../databasec/database.js";
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
@@ -50,7 +50,7 @@ export const refreshToken = (req, res) => {
     if (err) return res.sendStatus(403);
 
     // Lógica para generar un nuevo token
-    const newToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+    const newToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15d' });
     res.json({ token: newToken });
   });
 };

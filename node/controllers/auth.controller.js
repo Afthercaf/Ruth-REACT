@@ -1,9 +1,8 @@
 // src/controllers/auth.controller.js
 
-import { pool } from "../Database/database.js";
+import { pool } from "../databasec/database.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { TOKEN_SECRET } from "../Database/config.js";
 import { createAccessToken } from "../lib/helpers.js";
 
 
@@ -33,8 +32,8 @@ export const signUp = async (req, res) => {
 
     const token = await createAccessToken({ id: user.id, role: user.role });
     res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV !== "development",
-      secure: process.env.NODE_ENV !== "development",
+      httpOnly: process.env.NODE_ENV,
+      secure: process.env.NODE_ENV,
       sameSite: "none",
     });
 
@@ -74,8 +73,8 @@ export const signIn = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV !== "development",
-      secure: process.env.NODE_ENV !== "development",
+      httpOnly: process.env.NODE_ENV,
+      secure: process.env.NODE_ENV,
       sameSite: "none",
     });
 
@@ -92,49 +91,3 @@ export const signIn = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
-  res.cookie("token", "", {
-    httpOnly: true,
-    secure: true,
-    expires: new Date(0),
-  });
-  return res.sendStatus(200);
-};
-
-export const getProfile = async (req, res) => {
-  try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Asumiendo 'Bearer <token>'
-
-    if (!token) {
-      return res.status(401).json({ message: "No se proporcionó token de autenticación" });
-    }
-
-    const decoded = jwt.verify(token, TOKEN_SECRET);
-
-    const [users] = await pool.query(
-      "SELECT id, fullname, email, role FROM users WHERE id = ?", 
-      [decoded.id]
-    );
-
-    if (users.length === 0) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    const user = users[0];
-    res.json({
-      id: user.id,
-      fullname: user.fullname,
-      email: user.email,
-      role: user.role,
-      token: token // Devolvemos el mismo token que recibimos
-    });
-
-  } catch (error) {
-    console.error('Error en getUserProfile:', error);
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ message: "Token inválido" });
-    }
-    res.status(500).json({ message: "Error interno del servidor" });
-  }
-};

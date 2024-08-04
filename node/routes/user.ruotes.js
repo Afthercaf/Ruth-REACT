@@ -5,18 +5,6 @@ import path from 'path';
 import fs from 'fs';
 
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'C:/Users/Afthercaft/Desktop/nodejs-mysql-links-master/src/public/img';
-        fs.mkdirSync(uploadPath, { recursive: true });
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`);
-    }
-});
-
-const upload = multer({ storage: storage });
 
 
 const router = express.Router();

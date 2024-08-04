@@ -8,14 +8,6 @@ export const isLoggedIn = (req, res, next) => {
     return next();
   }
   
-  export const isAdmin = (req, res, next) => {
-    console.log('user:', req.user); // Agrega esta línea para verificar el contenido de req.user
-    if (req.isAuthenticated() && req.user?.role === 'admin') {
-      return next();
-    }
-    return res.redirect('/signin');
-  };
-  
   
   import jwt from 'jsonwebtoken';
 

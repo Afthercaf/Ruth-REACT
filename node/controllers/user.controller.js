@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { pool } from "../Database/database.js";
-import { TOKEN_SECRET } from "../Database/config.js";
+import { pool } from "../databasec/database.js";
+import { TOKEN_SECRET } from "../databasec/config.js";
 
 // Obtener el perfil del usuario autenticado
 export const getUserProfile = async (req, res) => {

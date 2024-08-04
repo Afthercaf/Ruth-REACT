@@ -8,9 +8,8 @@ import session from "express-session";
 import expressMySQLSession from "express-mysql-session";
 import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
-import { TOKEN_SECRET, database, PORT } from "./Database/config.js";
-import { pool } from "./Database/database.js";
-import "./lib/passport.js";
+import { TOKEN_SECRET, PORT } from "./databasec/config.js";
+import { pool } from "./databasec/database.js";
 import cors from "cors";
 
 const app = express();

@@ -1,12 +1,12 @@
-import { pool } from "../Database/database.js";
+import { pool } from "../databasec/database.js";
 
 
 
 export const renderAdminPanel = async (req, res) => {
     try {
         const [users] = await pool.query("SELECT * FROM users WHERE role = 'user'");
-        const [products] = await pool.query("SELECT * FROM products");
-        res.json({ users, products }); // Envía los datos como JSON
+        
+        res.json({ users}); // Envía los datos como JSON
     } catch (error) {
         console.error("Error al obtener los datos del panel de administrador:", error);
         res.status(500).json({ error: "Error al obtener los datos del panel de administrador", message: error.message });
@@ -132,18 +132,6 @@ export const deleteProduct = async (req, res) => {
     }
 };
 
-
-
-
-export const viewUsers = async (req, res) => {
-    try {
-        const [users] = await pool.query("SELECT * FROM users WHERE role = 'user'");
-        res.json({ users });
-    } catch (error) {
-        console.error("Error al obtener usuarios:", error);
-        res.status(500).json({ error: "Error al obtener usuarios", message: error.message });
-    }
-};
 
 export const deleteUser = async (req, res) => {
     const { id } = req.params;

@@ -1,4 +1,4 @@
-import { pool } from "../Database/database.js";
+import { pool } from "../databasec/database.js";
 
 export const renderIndex = (req, res) => res.render("index");
 
