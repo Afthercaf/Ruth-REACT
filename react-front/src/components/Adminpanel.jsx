@@ -21,7 +21,8 @@ const PanelAdmin = () => {
 
   const [paginaUsuarios, setPaginaUsuarios] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
-  const elementosPorPagina = 5;
+  const [paginaRegistros, setPaginaRegistros] = useState(1); // Añadido para paginación de registros
+  const elementosPorPagina = 5; // Ajusta aquí a 7 elementos por página
 
   const [productoActual, setProductoActual] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -111,6 +112,8 @@ const PanelAdmin = () => {
       setError('Error al actualizar el producto. Por favor, intente de nuevo.');
     }
   };
+
+  // Funciones para la paginación de usuarios
   const paginaAnteriorUsuarios = () => {
     setPaginaUsuarios(prev => Math.max(prev - 1, 1));
   };
@@ -119,6 +122,7 @@ const PanelAdmin = () => {
     setPaginaUsuarios(prev => (prev * elementosPorPagina < usuarios.length ? prev + 1 : prev));
   };
 
+  // Funciones para la paginación de productos
   const paginaAnteriorProductos = () => {
     setPaginaProductos(prev => Math.max(prev - 1, 1));
   };
@@ -127,8 +131,19 @@ const PanelAdmin = () => {
     setPaginaProductos(prev => (prev * elementosPorPagina < productos.length ? prev + 1 : prev));
   };
 
+  // Funciones para la paginación de registros
+  const paginaAnteriorRegistros = () => {
+    setPaginaRegistros(prev => Math.max(prev - 1, 1));
+  };
+
+  const paginaSiguienteRegistros = () => {
+    setPaginaRegistros(prev => (prev * elementosPorPagina < registros.length ? prev + 1 : prev));
+  };
+
+  // Datos paginados
   const usuariosPaginados = usuarios.slice((paginaUsuarios - 1) * elementosPorPagina, paginaUsuarios * elementosPorPagina);
   const productosPaginados = productos.slice((paginaProductos - 1) * elementosPorPagina, paginaProductos * elementosPorPagina);
+  const registrosPaginados = registros.slice((paginaRegistros - 1) * elementosPorPagina, paginaRegistros * elementosPorPagina);
 
   return (
     <div className="container p-4">
@@ -204,80 +219,117 @@ const PanelAdmin = () => {
             </tbody>
           </table>
           <div className="d-flex justify-content-between">
-            <button onClick={paginaAnteriorProductos} className="btn btn-primary">Anterior</button>
-            <button onClick={paginaSiguienteProductos} className="btn btn-primary">Siguiente</button>
+            <button onClick={paginaAnteriorProductos} className="btn btn-secondary" disabled={paginaProductos === 1}>Anterior</button>
+            <button onClick={paginaSiguienteProductos} className="btn btn-secondary" disabled={paginaProductos * elementosPorPagina >= productos.length}>Siguiente</button>
           </div>
         </div>
       ) : (
         <p>No hay productos para mostrar.</p>
       )}
 
-      {/* Administrar Usuarios */}
-      <h3>Administrar Usuarios</h3>
+      {/* Tabla de Usuarios */}
+      <h3>Lista de Usuarios</h3>
       {usuarios.length > 0 ? (
         <div>
-          <ul className="list-group">
-            {usuariosPaginados.map(usuario => (
-              <li key={usuario.id} className="list-group-item d-flex justify-content-between align-items-center">
-                {usuario.fullname} - {usuario.email}
-                <button onClick={() => handleEliminarUsuario(usuario.id)} className="btn btn-danger btn-sm">Eliminar</button>
-              </li>
-            ))}
-          </ul>
+          <table className="table table-dark">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuariosPaginados.map(usuario => (
+                <tr key={usuario.id}>
+                  <td>{usuario.id}</td>
+                  <td>{usuario.fullname}</td>
+                  <td>{usuario.email}</td>
+                  <td>
+                    <button onClick={() => handleEliminarUsuario(usuario.id)} className="btn btn-danger btn-sm">Eliminar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <div className="d-flex justify-content-between">
-            <button onClick={paginaAnteriorUsuarios} className="btn btn-primary">Anterior</button>
-            <button onClick={paginaSiguienteUsuarios} className="btn btn-primary">Siguiente</button>
+            <button onClick={paginaAnteriorUsuarios} className="btn btn-secondary" disabled={paginaUsuarios === 1}>Anterior</button>
+            <button onClick={paginaSiguienteUsuarios} className="btn btn-secondary" disabled={paginaUsuarios * elementosPorPagina >= usuarios.length}>Siguiente</button>
           </div>
         </div>
       ) : (
         <p>No hay usuarios para mostrar.</p>
       )}
 
-      {/* Registros de Auditoría */}
-      <h3 className="mt-4">Registros de Auditoría</h3>
-      {registros.length > 0 ? (
-        <ul className="list-group">
-          {registros.map(registro => (
-            <li key={registro.id} className="list-group-item">
-              ID de Usuario: {registro.user_id} - Acción: {registro.action} - Fecha: {new Date(registro.timestamp).toLocaleString()}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No hay registros de auditoría para mostrar.</p>
-      )}
+{/* Tabla de Registros */}
+<h3>Registros</h3>
+{registros.length > 0 ? (
+  <div>
+    <table className="table table-dark">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID de Usuario</th>
+          <th>Acción</th>
+          <th>Fecha y Hora</th>
+          <th>Detalles</th>
+        </tr>
+      </thead>
+      <tbody>
+        {registrosPaginados.map(registro => (
+          <tr key={registro.id}>
+            <td>{registro.id}</td>
+            <td>{registro.user_id}</td>
+            <td>{registro.action}</td>
+            <td>{new Date(registro.timestamp).toLocaleString()}</td>
+            <td>{registro.details}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <div className="d-flex justify-content-between">
+      <button onClick={paginaAnteriorRegistros} className="btn btn-secondary" disabled={paginaRegistros === 1}>Anterior</button>
+      <button onClick={paginaSiguienteRegistros} className="btn btn-secondary" disabled={paginaRegistros * elementosPorPagina >= registros.length}>Siguiente</button>
+    </div>
+  </div>
+) : (
+  <p>No hay registros para mostrar.</p>
+)}
+
 
       {/* Modal para editar producto */}
-      {mostrarModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
-          <div className="modal-dialog" role="document">
+      {mostrarModal && productoActual && (
+        <div className="modal show" style={{ display: 'block' }} role="dialog">
+          <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Editar Producto</h5>
-                <button type="button" className="close" onClick={() => setMostrarModal(false)} aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" className="close" onClick={() => setMostrarModal(false)}>&times;</button>
               </div>
-              <div className="modal-body">
               <form onSubmit={handleActualizarProducto}>
-  <div className="form-group mb-3">
-    <input type="text" name="name" className="form-control bg-dark text-light" defaultValue={productoActual.name} placeholder="Nombre del producto" required />
-  </div>
-  <div className="form-group mb-3">
-    <textarea name="description" className="form-control bg-dark text-light" defaultValue={productoActual.description} placeholder="Descripción" required></textarea>
-  </div>
-  <div className="form-group mb-3">
-    <input type="number" name="price" step="0.01" className="form-control bg-dark text-light" defaultValue={productoActual.price} placeholder="Precio" required />
-  </div>
-  <div className="form-group mb-3">
-    <input type="number" name="quantity" className="form-control bg-dark text-light" defaultValue={productoActual.quantity} placeholder="Cantidad" required />
-  </div>
-  <div className="form-group mb-3">
-    <input type="text" name="image" className="form-control bg-dark text-light" defaultValue={productoActual.image} placeholder="URL de la imagen" required />
-  </div>
-  <button type="submit" className="btn btn-success">Guardar Cambios</button>
-</form>
-              </div>
+                <div className="modal-body">
+                  <div className="form-group mb-3">
+                    <input type="text" name="name" className="form-control" defaultValue={productoActual.name} placeholder="Nombre del producto" required />
+                  </div>
+                  <div className="form-group mb-3">
+                    <textarea name="description" className="form-control" defaultValue={productoActual.description} placeholder="Descripción" required></textarea>
+                  </div>
+                  <div className="form-group mb-3">
+                    <input type="number" name="price" step="0.01" className="form-control" defaultValue={productoActual.price} placeholder="Precio" required />
+                  </div>
+                  <div className="form-group mb-3">
+                    <input type="number" name="quantity" className="form-control" defaultValue={productoActual.quantity} placeholder="Cantidad" required />
+                  </div>
+                  <div className="form-group mb-3">
+                    <input type="text" name="image" className="form-control" defaultValue={productoActual.image} placeholder="URL de la imagen" required />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setMostrarModal(false)}>Cerrar</button>
+                  <button type="submit" className="btn btn-primary">Actualizar</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -287,3 +339,5 @@ const PanelAdmin = () => {
 };
 
 export default PanelAdmin;
+
+
