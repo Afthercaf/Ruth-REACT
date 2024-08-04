@@ -6,24 +6,29 @@ import {
   getLogsRequest, 
   addProductRequest, 
   deleteProductRequest, 
+  updateProductRequest, 
   deleteUserRequest 
 } from '../AuthP/admin.api';
 import { useAuth } from '../context/authContext';
+
 const PanelAdmin = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [registros, setRegistros] = useState([]);
   const [error, setError] = useState(null);
-  const { isAuthenticated, role } = useAuth()
+  const { isAuthenticated, role } = useAuth();
   const navigate = useNavigate();
 
   const [paginaUsuarios, setPaginaUsuarios] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
   const elementosPorPagina = 5;
 
+  const [productoActual, setProductoActual] = useState(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
+
   useEffect(() => {
     if (!isAuthenticated || role !== 'admin') {
-      navigate('/signin'); // Redirige si el usuario no está autenticado o no es un administrador
+      navigate('/signin');
     } else {
       obtenerDatos();
     }
@@ -39,7 +44,7 @@ const PanelAdmin = () => {
       console.log('Respuesta Panel Admin:', respuestaPanelAdmin.data);
       console.log('Respuesta Productos:', respuestaProductos.data);
       console.log('Respuesta Registros:', respuestaRegistros.data);
-  
+
       setUsuarios(respuestaPanelAdmin.data.users || []);
       setProductos(respuestaProductos.data.products || []);
       setRegistros(respuestaRegistros.data.logs || []);
@@ -58,7 +63,6 @@ const PanelAdmin = () => {
     const formData = new FormData(event.target);
     try {
       await addProductRequest(formData);
-      // Recargar productos después de agregar
       const respuestaProductos = await getProductsRequest();
       setProductos(respuestaProductos.data.products || []);
     } catch (error) {
@@ -87,6 +91,26 @@ const PanelAdmin = () => {
     }
   };
 
+  const handleEditarProducto = (producto) => {
+    setProductoActual(producto);
+    setMostrarModal(true);
+  };
+
+  const handleActualizarProducto = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const productData = Object.fromEntries(formData);
+    
+    try {
+      await updateProductRequest(productoActual.id, productData);
+      const respuestaProductos = await getProductsRequest();
+      setProductos(respuestaProductos.data.products || []);
+      setMostrarModal(false);
+    } catch (error) {
+      console.error('Error al actualizar producto', error);
+      setError('Error al actualizar el producto. Por favor, intente de nuevo.');
+    }
+  };
   const paginaAnteriorUsuarios = () => {
     setPaginaUsuarios(prev => Math.max(prev - 1, 1));
   };
@@ -105,6 +129,7 @@ const PanelAdmin = () => {
 
   const usuariosPaginados = usuarios.slice((paginaUsuarios - 1) * elementosPorPagina, paginaUsuarios * elementosPorPagina);
   const productosPaginados = productos.slice((paginaProductos - 1) * elementosPorPagina, paginaProductos * elementosPorPagina);
+
   return (
     <div className="container p-4">
       <h1>Panel de Administración</h1>
@@ -171,6 +196,7 @@ const PanelAdmin = () => {
                   </td>
                   <td>{producto.quantity}</td>
                   <td>
+                    <button onClick={() => handleEditarProducto(producto)} className="btn btn-warning btn-sm">Editar</button>
                     <button onClick={() => handleEliminarProducto(producto.id)} className="btn btn-danger btn-sm">Eliminar</button>
                   </td>
                 </tr>
@@ -219,6 +245,42 @@ const PanelAdmin = () => {
         </ul>
       ) : (
         <p>No hay registros de auditoría para mostrar.</p>
+      )}
+
+      {/* Modal para editar producto */}
+      {mostrarModal && (
+        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Editar Producto</h5>
+                <button type="button" className="close" onClick={() => setMostrarModal(false)} aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+              <form onSubmit={handleActualizarProducto}>
+  <div className="form-group mb-3">
+    <input type="text" name="name" className="form-control bg-dark text-light" defaultValue={productoActual.name} placeholder="Nombre del producto" required />
+  </div>
+  <div className="form-group mb-3">
+    <textarea name="description" className="form-control bg-dark text-light" defaultValue={productoActual.description} placeholder="Descripción" required></textarea>
+  </div>
+  <div className="form-group mb-3">
+    <input type="number" name="price" step="0.01" className="form-control bg-dark text-light" defaultValue={productoActual.price} placeholder="Precio" required />
+  </div>
+  <div className="form-group mb-3">
+    <input type="number" name="quantity" className="form-control bg-dark text-light" defaultValue={productoActual.quantity} placeholder="Cantidad" required />
+  </div>
+  <div className="form-group mb-3">
+    <input type="text" name="image" className="form-control bg-dark text-light" defaultValue={productoActual.image} placeholder="URL de la imagen" required />
+  </div>
+  <button type="submit" className="btn btn-success">Guardar Cambios</button>
+</form>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

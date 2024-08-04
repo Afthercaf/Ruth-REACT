@@ -15,12 +15,9 @@ export const addProductRequest = async (formData) => axios.post("/admin/add-prod
 // Delete a product by ID
 export const deleteProductRequest = async (id) => axios.delete(`/admin/delete-product/${id}`);
 
-// Update a product by ID
-export const updateProductRequest = async (id, formData) => axios.post(`/admin/update-product/${id}`, formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-});
+
+export const updateProductRequest = async (id, productData) => 
+  axios.post(`/admin/update-product/${id}`, productData);
 
 // Delete a user by ID
 export const deleteUserRequest = async (id) => axios.delete(`/admin/delete-user/${id}`);
