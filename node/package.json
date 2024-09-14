@@ -4,9 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "DEBUG=express-mysql-session* node src/index.js",
+    "dev": "DEBUG=express-mysql-session* node index.js",
     "start": "node dist/index.js"
-  },
+    },
   "keywords": [],
   "author": "",
   "license": "ISC",
