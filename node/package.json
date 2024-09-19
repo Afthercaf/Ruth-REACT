@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "DEBUG=express-mysql-session* node index.js"",
+    "dev": "DEBUG=express-mysql-session* node index.js",
     "start": "node dist/index.js",
     "test": "jest"
   },
