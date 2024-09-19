@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_URL = axios.create({
-  baseURL: '${process.env.DATABASE_URL}/', // Cambia esta URL a la de tu backend
+  baseURL: process.env.DATABASE_URL, // Cambia esta URL a la de tu backend
   withCredentials: true
 });
 
