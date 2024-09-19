@@ -1,27 +1,34 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Archivos de entorno
 .env
-# dependencies
-/node_modules
+
+# Configuración de Yarn Plug'n'Play
 /.pnp
 .pnp.js
 
-# testing
+# Pruebas
 /coverage
 
-# production
+# Producción
 /build
 
-# misc
+# Miscellaneous
 .DS_Store
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Logs de npm y Yarn
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Configuración de Vercel
 .vercel
 
-.env
+# Archivos de pruebas específicas
+src/components/admin.test.js
+src/components/LoginPage.test.js
+src/components/Navbar.test.js
+src/components/SignUp.test.js
+src/__mocks__

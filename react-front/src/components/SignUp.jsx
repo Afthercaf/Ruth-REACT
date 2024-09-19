@@ -39,6 +39,7 @@ const SignUpPage = () => {
                 {error}
               </div>
             )}
+
             {success && (
               <div className="alert alert-success" role="alert">
                 {success}
@@ -66,7 +67,7 @@ const SignUpPage = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label htmlFor="password1">Escribe tu contraseña:</label>
+            <label htmlFor="password1">contraseña:</label>
             <input
               type="password"
               name="password1"
@@ -80,7 +81,7 @@ const SignUpPage = () => {
             <input
               type="password"
               name="password2"
-              placeholder="Confirmar Contraseña"
+              placeholder="Confirmar contraseña"
               className="form-control mb-3"
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}

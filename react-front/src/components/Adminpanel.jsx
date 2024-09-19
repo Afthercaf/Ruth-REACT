@@ -247,7 +247,7 @@ const PanelAdmin = () => {
                   <td>{usuario.fullname}</td>
                   <td>{usuario.email}</td>
                   <td>
-                    <button onClick={() => handleEliminarUsuario(usuario.id)} className="btn btn-danger btn-sm">Eliminar</button>
+                    <button onClick={() => handleEliminarUsuario(usuario.id)} className="btn btn-danger btn-sm">Eliminar Usuario</button>
                   </td>
                 </tr>
               ))}

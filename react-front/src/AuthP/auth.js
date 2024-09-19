@@ -1,5 +1,4 @@
 // src/api/auth.js
-import axios from 'axios';
 import { API_URL } from '../api';
 
 export const loginRequest = async (user) => {
@@ -24,7 +23,7 @@ export const registerRequest = async (user) => {
 
 export const verifyTokenRequest = async (token) => {
   try {
-    const response = await axios.get('http://localhost:4000/Perfil', {
+    const response = await API_URL.get('/Perfil', {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response;
